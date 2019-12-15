@@ -2,12 +2,6 @@ from IntCode import IntCode
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
-from pynput.keyboard import Key, Listener
-
-matplotlib.use('TkAgg')
-plt.ion()
-
-
 
 def task13_1():
 
@@ -18,44 +12,45 @@ def task13_1():
     code[0] = 2
     score = 0
 
-    global joystick
     joystick = 0
 
     screen = np.zeros((10, 10))
-
-    def on_press(key):
-        global joystick
-        if key == Key.left:
-            joystick = -1
-            return False
-        if key == Key.right:
-            joystick = 1
-            return False
-
-        if key == Key.down:
-            joystick = 0
-            return False
-
-
-
+    step = 0
     while not program.stopped:
         program.inputs = [joystick]
         program.run_until_expect_input()
 
         screen, n_score = update_screen(screen, program.outputs)
-
         program.outputs.clear()
 
-        # Collect events until released
-        with Listener(
-                on_press=on_press) as listener:
-            listener.join()
+        paddle_pos = np.where(screen == 3)
+        paddle_pos = [paddle_pos[0][0], paddle_pos[1][0]]
+
+        ball_pos = np.where(screen == 4)
+        ball_pos = [ball_pos[0][0], ball_pos[1][0]]
+
+        joystick = game_ai(ball_pos, paddle_pos)
 
         if n_score is not None:
-            score += score
-            print(score)
+            score = n_score
+
+        step += 1
+        if step % 100 == 0:
+            print(step)
+
+    print("FINAL SCORE: " + str(score))
 
     return
+
+
+def game_ai(ball_pos, self_pos):
+
+    if ball_pos[0] > self_pos[0]:
+        return 1
+    elif ball_pos[0] < self_pos[0]:
+        return -1
+
+    return 0
 
 
 def update_screen(screen, outputs):
@@ -70,12 +65,16 @@ def update_screen(screen, outputs):
 
         i += 3
 
+    return screen, score
+
+
+def show_screen(screen):
+
     plt.imshow(screen.transpose())
     plt.show()
     plt.pause(0.001)
 
-    return screen, score
-
+    return
 
 def draw_screen(screen, x, y, tile):
 
