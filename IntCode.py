@@ -41,7 +41,9 @@ class IntCode:
         while len(self.outputs) == 0 and not self.stopped:
             self.step()
 
-    def run_until_expect_input(self):
+    def run_until_expect_input(self, input_values: List = []):
+
+        self.inputs.extend(input_values)
 
         while not (self.expect_input and len(self.inputs) == 0) and not self.stopped:
             self.step()
