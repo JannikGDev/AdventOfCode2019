@@ -3,9 +3,10 @@ from typing import List
 
 class IntCode:
 
-    def __init__(self, code, instruction_pointer: int = 0, rel_base: int = 0):
+    def __init__(self, code: List, instruction_pointer: int = 0, rel_base: int = 0):
 
-        self.code: List = code
+        self.code_original = code
+        self.code: List = self.code_original.copy()
         self.rel_base = rel_base
         self.i = instruction_pointer
         self.outputs = []
@@ -19,6 +20,16 @@ class IntCode:
             self.code.extend([0 for j in range((index+1) - len(self.code))])
 
         return self.code[index]
+
+    def reset(self):
+
+        self.i = 0
+        self.stopped = False
+        self.expect_input = False
+        self.outputs = []
+        self.inputs = []
+        self.rel_base = 0
+        self.code = self.code_original.copy()
 
     def set(self, index, value):
 
